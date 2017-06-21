@@ -27,7 +27,7 @@ export class App {
 
   start() {
     this.app.listen(this.port, () => {
-        console.log("flight-search server listening on port %d", this.port);
+        console.log("web-chromatic-tuner server listening on port %d", this.port);
       });
   }
 
