@@ -54,6 +54,7 @@ export class PitchDetector {
 
     processLinearPcm(pcmData: Float32Array, sampleRate: number) {
         if(pcmData.length >= this._params._last_lag && pcmData.length >= this._params._limit_data_len) {
+            let f_0_Hz = 0;
             const t0 = performance.now();
 
             const sliceBegin = (pcmData.length-this._params._limit_data_len)/2;
@@ -65,19 +66,32 @@ export class PitchDetector {
                 pcmData.slice(sliceBegin,sliceBegin+this._params._limit_data_len)
             );
 
-            const mins = minimaBetweenZeroCrossing(sdf_result, this._params._global_thresh,1.0);
-            const best_min = this.bestMinimum (mins, this._params._local_thresh);
-            let f_0_Hz = 0;
+            let mins = minimaBetweenZeroCrossing(sdf_result, this._params._global_thresh,1.0);
+            let best_min = this.bestMinimum (mins, this._params._local_thresh);
 
             /* todo: refine and curve fit */
 
             if(best_min) {
-                var delay = best_min.x;
-                if(delay >= this._params._first_lag && delay <= this._params._last_lag) {
-                    f_0_Hz = sampleRate / delay;
-                    /*result.Q_Hz = quad_out.HasValue?0.0:(sampleRate / (delay + _params._step_lag)) - result.F_0_Hz;
-                    result.LeastSquaresData = refined_sdf_result;
-                    result.LeastSquaresParabola = quad_out;*/
+                const refine_first_lag = Math.max(1,best_min.x - this._params._refine_lag_window / 2);
+                const refine_last_lag = Math.min(pcmData.length/2-1,refine_first_lag + this._params._refine_lag_window - 1);
+                const refined_sdf_result = this.normalised_square_differences(
+                    refine_first_lag,
+                    refine_last_lag,
+                    this._params._refine_step_lag,
+                    pcmData);
+
+                /* todo: curve fit this one */
+                mins = minimaBetweenZeroCrossing(refined_sdf_result, this._params._global_thresh,1.0);
+                best_min = this.bestMinimum (mins, this._params._local_thresh);
+
+                if(best_min) {
+                    var delay = best_min.x;
+                    if(delay >= this._params._first_lag && delay <= this._params._last_lag) {
+                        f_0_Hz = sampleRate / delay;
+                        /*result.Q_Hz = quad_out.HasValue?0.0:(sampleRate / (delay + _params._step_lag)) - result.F_0_Hz;
+                        result.LeastSquaresData = refined_sdf_result;
+                        result.LeastSquaresParabola = quad_out;*/
+                    }
                 }
             }
 
@@ -137,8 +151,11 @@ export class PitchDetector {
                 result[i] = new Point2D(delay,this.normalised_square_difference_single(delay,data,data,cms,acf,len));
                 delay += step;
     		}
+            return result;
         }
-        return result;
+        else {
+            return [] as Array<Point2D>;
+        }
     }
 
 

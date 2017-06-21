@@ -4,6 +4,7 @@ import { Provider, connect } from "react-redux";
 import { Store } from "redux";
 import { State } from "../state";
 
+import { MidiNote } from "../audio/midiNote";
 import { PitchDetectorResult } from "../audio/pitchDetector";
 import { Point2D } from "../numerics/point2D";
 
@@ -26,6 +27,14 @@ function pointToString(point: Point2D) {
     return "null";
 }
 
+function f0HzToNote(hz: number) {
+    if(hz) {
+        const note = MidiNote.fromHz(hz);
+        return `${note.sharpName()},${note.pitchBendCents()}`;
+    }
+    return "---";
+}
+
 const App = connect(mapStateToProps)((props: AppProps) => (
     <div>
         <h1>Hello!</h1>
@@ -33,6 +42,7 @@ const App = connect(mapStateToProps)((props: AppProps) => (
         {props.pitchData &&
             <div>
                 f_0_Hz: <span>{props.pitchData.f_0_Hz}</span> Hz<br/>
+                note: <span>{f0HzToNote(props.pitchData.f_0_Hz)}</span><br/>
                 bestMinima: <span>{pointToString(props.pitchData.selectedMinima)}</span><br/>
                 Sampling Rate: <span>{props.pitchData.samplingRate}</span> Hz<br/>
                 Seq#: <span>{props.pitchData.seq}</span><br/>
