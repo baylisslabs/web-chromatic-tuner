@@ -1,8 +1,8 @@
 
 
 import { minimaBetweenZeroCrossing } from "../numerics/discreteData2D";
-import { Point2D } from "../numerics/point2D";
-import * as vDSP from "../numerics/vDSP";
+import { Point2D,Point2DVector } from "../numerics/point2D";
+//import * as vDSP from "../numerics/vDSP";
 
 export interface PitchDetectorResult
 {
@@ -54,16 +54,16 @@ export class PitchDetector {
 
     processLinearPcm(pcmData: Float32Array, sampleRate: number) {
         if(pcmData.length >= this._params._last_lag && pcmData.length >= this._params._limit_data_len) {
+            pcmData = pcmData.slice(0,this._params._limit_data_len);
+
             let f_0_Hz = 0;
             const t0 = performance.now();
-
-            const sliceBegin = (pcmData.length-this._params._limit_data_len)/2;
 
             const sdf_result = this.normalised_square_differences(
                 this._params._first_lag,
                 this._params._last_lag,
                 this._params._step_lag,
-                pcmData.slice(sliceBegin,sliceBegin+this._params._limit_data_len)
+                pcmData
             );
 
             let mins = minimaBetweenZeroCrossing(sdf_result, this._params._global_thresh,1.0);
@@ -78,11 +78,14 @@ export class PitchDetector {
                     refine_first_lag,
                     refine_last_lag,
                     this._params._refine_step_lag,
-                    pcmData.slice(0,this._params._limit_data_len));
+                    pcmData);
 
                 /* todo: curve fit this one */
                 mins = minimaBetweenZeroCrossing(refined_sdf_result, this._params._global_thresh,1.0);
                 best_min = this.bestMinimum (mins, this._params._local_thresh);
+
+                /*QuadraticD? quad_out;
+                best_min = refineByLeastSquares(refined_sdf_result, out quad_out);*/
 
                 if(best_min) {
                     var delay = best_min.x;
@@ -112,17 +115,31 @@ export class PitchDetector {
         }
     }
 
+    private refineByLeastSquares(sdf: Point2DVector, /*out QuadraticD? quad*/): Point2D {
+        /*LeastSquaresD lsd = new LeastSquaresD(sdf.Points.ToArray());
+        quad = lsd.Parabola2();
+        if (quad!=null) {
+            var vertex = quad.Value.Vertex;
+            if (vertex != null) {
+                return vertex.Value;
+            }
+        }*/
+        return null;
+    }
+
+
     /* assumes mins ordered */
-    private bestMinimum(ordered_mins: Point2D[], local_thresh: number): Point2D
-    {
+    private bestMinimum(ordered_mins: Point2DVector, local_thresh: number): Point2D {
         if (ordered_mins.length!=0) {
-            let best_min = ordered_mins[0];
-            for(let min of ordered_mins) {
+            let best_min = ordered_mins.get(0);
+            for(let i=0; i<ordered_mins.length;++i) {
+                const min = ordered_mins.get(i);
                 if(min.y < best_min.y) {
                     best_min = min;
                 }
             }
-            for(let min of ordered_mins) {
+            for(let i=0; i<ordered_mins.length;++i) {
+                const min = ordered_mins.get(i);
                 if(min.x >= best_min.x) {
                     break;
                 }
@@ -138,46 +155,39 @@ export class PitchDetector {
 
     private normalised_square_differences(first: number, last: number, step: number, data: Float32Array) {
         const len = data.length;
-        const n = Math.floor((last-first+1)/step);
-        const result = Array<Point2D>(n);
         const cms = new Float32Array(len);
-        const acf = new Float32Array(len);
+
+        const n = Math.floor((last-first+1)/step);
+        const result = new Point2DVector(n);
 
         this.cumulative_squares(cms,data,len);
 
         if(this.update_squelch(cms[cms.length-1]/len)) {
             let delay = first;
             for(let i=0;i<n;i++) {
-                result[i] = new Point2D(delay,this.normalised_square_difference_single(delay,data,data,cms,acf,len));
+                result.pushxy(delay,this.normalised_square_difference_single(delay,data,data,cms,len));
                 delay += step;
+            }
         }
-            return result;
-        }
-        else {
-            return [] as Array<Point2D>;
-        }
+        return result;
     }
-
 
     private cumulative_squares(result: Float32Array, data: Float32Array, len: number) {
-        vDSP.vsq(data,1,result,1,len);
-        /* todo: vector op */
-        for(let i=1;i<len;++i) {
-            result[i] += result[i-1];
+        let accum = 0;
+        for(let i=0;i<len;++i) {
+            accum = result[i] = data[i]*data[i] + accum;
         }
     }
 
-    private normalised_square_difference_single(delay: number, data: Float32Array, data2: Float32Array, cms: Float32Array, acf: Float32Array, len: number)
-    {
+    private normalised_square_difference_single(delay: number, data: Float32Array, data2: Float32Array, cms: Float32Array, len: number) {
         const end = (len - delay);
         const sum_m = cms[end-1] + cms[len-1] - cms[delay-1];
-
+        let sum_acf = 0;
         for(let i=0,j=delay;i<end;++i,++j)
         {
-            acf[i] = data[i]*data2[j];
+            sum_acf += data[i]*data2[j];
         }
 
-        const sum_acf = vDSP.sve(acf,1,end);
         return (-sum_acf-sum_acf) / sum_m + 1.0;
     }
 
