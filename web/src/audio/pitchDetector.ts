@@ -112,7 +112,7 @@ export class PitchDetector {
         }
     }
 
-/* assumes mins ordered */
+    /* assumes mins ordered */
     private bestMinimum(ordered_mins: Point2D[], local_thresh: number): Point2D
     {
         if (ordered_mins.length!=0) {
@@ -150,7 +150,7 @@ export class PitchDetector {
             for(let i=0;i<n;i++) {
                 result[i] = new Point2D(delay,this.normalised_square_difference_single(delay,data,data,cms,acf,len));
                 delay += step;
-    		}
+        }
             return result;
         }
         else {
