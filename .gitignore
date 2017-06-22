@@ -1,3 +1,5 @@
 dist/*
 node_modules/*
 #project specific
+server.key
+server.pem

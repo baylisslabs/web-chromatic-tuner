@@ -27,7 +27,6 @@ export type Action =
 export interface AudioStatusAction {
     readonly type: typeof ActionType.AUDIO_STATUS;
     readonly active: boolean;
-    readonly sampleRate: number;
 }
 
 export interface PitchDetectAction {

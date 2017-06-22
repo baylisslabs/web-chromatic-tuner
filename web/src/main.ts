@@ -20,6 +20,7 @@ mount(document.getElementById("app"), store);
 navigator.mediaDevices
     .getUserMedia({ audio: true, video: false })
     .then(stream=>{
+        store.dispatch(updateAudioStatus(true));
         const context = new AudioContext();
         const input = context.createMediaStreamSource(stream);
         const processor = context.createScriptProcessor(4096,1,1);
@@ -38,5 +39,4 @@ navigator.mediaDevices
                     audioEvent.inputBuffer.sampleRate);
             }
         };
-        store.dispatch(updateAudioStatus(true,context.sampleRate));
     });
