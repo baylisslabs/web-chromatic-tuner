@@ -25,7 +25,7 @@ export class PitchDetectorParams
     readonly _limit_data_len = 3600;  // limits sdf sample length for for coarse detection only
     readonly _first_lag = 10;
     readonly _last_lag = 1800;
-    readonly _step_lag = 1;
+    readonly _step_lag = 2;
     readonly _refine_lag_window = 8;
     readonly _refine_step_lag = 1;
     readonly _global_thresh = 0.2;
@@ -78,7 +78,7 @@ export class PitchDetector {
                     refine_first_lag,
                     refine_last_lag,
                     this._params._refine_step_lag,
-                    pcmData);
+                    pcmData.slice(0,this._params._limit_data_len));
 
                 /* todo: curve fit this one */
                 mins = minimaBetweenZeroCrossing(refined_sdf_result, this._params._global_thresh,1.0);
@@ -138,7 +138,7 @@ export class PitchDetector {
 
     private normalised_square_differences(first: number, last: number, step: number, data: Float32Array) {
         const len = data.length;
-        const n = (last-first+1)/step;
+        const n = Math.floor((last-first+1)/step);
         const result = Array<Point2D>(n);
         const cms = new Float32Array(len);
         const acf = new Float32Array(len);

@@ -21,7 +21,9 @@ export class App {
     }
 
     this.app.use(bodyParser.json());
-    this.app.use(express.static(path.resolve(__dirname,"../www")));
+    this.app.use(express.static(path.resolve(__dirname,"../www"),{
+        etag: false
+    }));
 
     this.configureErrorHandler();
   }
