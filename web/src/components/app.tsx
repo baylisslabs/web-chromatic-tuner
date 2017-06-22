@@ -6,7 +6,7 @@ import { State } from "../state";
 
 import { MidiNote } from "../audio/midiNote";
 import { PitchDetectorResult } from "../audio/pitchDetector";
-import { Point2D } from "../numerics/point2D";
+import { Point2 } from "../numerics/point2";
 
 interface AppProps {
     audioActive: boolean;
@@ -20,7 +20,7 @@ function mapStateToProps(state: State) : AppProps {
     };
 }
 
-function pointToString(point: Point2D) {
+function pointToString(point: Point2) {
     if(point) {
         return `(${point.x},${point.y})`
     }

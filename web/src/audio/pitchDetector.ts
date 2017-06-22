@@ -1,7 +1,7 @@
 
 
-import { minimaBetweenZeroCrossing } from "../numerics/discreteData2D";
-import { Point2D,Point2DVector } from "../numerics/point2D";
+import { minimaBetweenZeroCrossing } from "../numerics/discreteData2";
+import { Point2,Point2Vector } from "../numerics/point2";
 //import * as vDSP from "../numerics/vDSP";
 
 export interface PitchDetectorResult
@@ -11,7 +11,7 @@ export interface PitchDetectorResult
     readonly q_Hz : number;
     readonly samplingRate: number;
     //public DiscreteData2D CorrelationData { get; set; }
-    readonly selectedMinima: Point2D;
+    readonly selectedMinima: Point2;
     readonly processingTimeMs: number
     //public DiscreteData2D LeastSquaresData { get; set; }
     // public QuadraticD? LeastSquaresParabola { get; set; }
@@ -115,7 +115,7 @@ export class PitchDetector {
         }
     }
 
-    private refineByLeastSquares(sdf: Point2DVector, /*out QuadraticD? quad*/): Point2D {
+    private refineByLeastSquares(sdf: Point2Vector, /*out QuadraticD? quad*/): Point2 {
         /*LeastSquaresD lsd = new LeastSquaresD(sdf.Points.ToArray());
         quad = lsd.Parabola2();
         if (quad!=null) {
@@ -129,7 +129,7 @@ export class PitchDetector {
 
 
     /* assumes mins ordered */
-    private bestMinimum(ordered_mins: Point2DVector, local_thresh: number): Point2D {
+    private bestMinimum(ordered_mins: Point2Vector, local_thresh: number): Point2 {
         if (ordered_mins.length!=0) {
             let best_min = ordered_mins.get(0);
             for(let i=0; i<ordered_mins.length;++i) {
@@ -158,7 +158,7 @@ export class PitchDetector {
         const cms = new Float32Array(len);
 
         const n = Math.floor((last-first+1)/step);
-        const result = new Point2DVector(n);
+        const result = new Point2Vector(n);
 
         this.cumulative_squares(cms,data,len);
 
