@@ -2,6 +2,9 @@
 
 import { minimaBetweenZeroCrossing } from "../numerics/discreteData2";
 import { Point2,Point2Vector } from "../numerics/point2";
+import { LeastSquares } from "../numerics/leastSquares";
+import { Quadratic } from "../numerics/quadratic";
+
 //import * as vDSP from "../numerics/vDSP";
 
 export interface PitchDetectorResult
@@ -10,11 +13,11 @@ export interface PitchDetectorResult
     readonly f_0_Hz : number;
     readonly q_Hz : number;
     readonly samplingRate: number;
-    //public DiscreteData2D CorrelationData { get; set; }
     readonly selectedMinima: Point2;
     readonly processingTimeMs: number
-    //public DiscreteData2D LeastSquaresData { get; set; }
-    // public QuadraticD? LeastSquaresParabola { get; set; }
+    //readonly correlationData: Point2Vector;
+    //readonly leastSquaresData: Point2Vector;
+    readonly leastSquaresParabola: Quadratic;
     readonly timeStamp: number;
     readonly squelch: boolean;
     readonly rmsSquared: number;
@@ -32,12 +35,14 @@ export class PitchDetectorParams
     readonly _local_thresh = 0.05;
     readonly _squelch_open = 10;
     readonly _squelch_close = 2;
+    readonly _skipFrames = 2; // only process every n frames (CPU load)
 }
 
 export class PitchDetector {
     private readonly _params: PitchDetectorParams;
     private readonly _resultHandler: (result: PitchDetectorResult) => void;
 
+    private _frameCounter: number;
     private _resultSeq: number;
     private _squelch: boolean;
     private _min_avg_pwr2: number;
@@ -46,6 +51,7 @@ export class PitchDetector {
     constructor(params: PitchDetectorParams, resultHandler: (result: PitchDetectorResult) => void) {
         this._params = params;
         this._resultHandler = resultHandler;
+        this._frameCounter = 0;
         this._resultSeq = 0;
         this._squelch = false;
         this._min_avg_pwr2 = Number.MAX_VALUE;
@@ -53,10 +59,16 @@ export class PitchDetector {
     }
 
     processLinearPcm(pcmData: Float32Array, sampleRate: number) {
+        if((this._frameCounter++) % this._params._skipFrames) {
+            return;
+        }
+
         if(pcmData.length >= this._params._last_lag && pcmData.length >= this._params._limit_data_len) {
             pcmData = pcmData.slice(0,this._params._limit_data_len);
 
             let f_0_Hz = 0;
+            let quadraticFit: Quadratic;
+
             const t0 = performance.now();
 
             const sdf_result = this.normalised_square_differences(
@@ -69,8 +81,6 @@ export class PitchDetector {
             let mins = minimaBetweenZeroCrossing(sdf_result, this._params._global_thresh,1.0);
             let best_min = this.bestMinimum (mins, this._params._local_thresh);
 
-            /* todo: refine and curve fit */
-
             if(best_min) {
                 const refine_first_lag = Math.max(1,best_min.x - this._params._refine_lag_window / 2);
                 const refine_last_lag = Math.min(pcmData.length/2-1,refine_first_lag + this._params._refine_lag_window - 1);
@@ -80,31 +90,26 @@ export class PitchDetector {
                     this._params._refine_step_lag,
                     pcmData);
 
-                /* todo: curve fit this one */
-                mins = minimaBetweenZeroCrossing(refined_sdf_result, this._params._global_thresh,1.0);
-                best_min = this.bestMinimum (mins, this._params._local_thresh);
-
-                /*QuadraticD? quad_out;
-                best_min = refineByLeastSquares(refined_sdf_result, out quad_out);*/
+                quadraticFit = this.refineByLeastSquares(refined_sdf_result);
+                best_min = quadraticFit ? quadraticFit.vertex() : undefined;
 
                 if(best_min) {
                     var delay = best_min.x;
                     if(delay >= this._params._first_lag && delay <= this._params._last_lag) {
                         f_0_Hz = sampleRate / delay;
-                        /*result.Q_Hz = quad_out.HasValue?0.0:(sampleRate / (delay + _params._step_lag)) - result.F_0_Hz;
-                        result.LeastSquaresData = refined_sdf_result;
-                        result.LeastSquaresParabola = quad_out;*/
                     }
                 }
             }
 
-
             const result = {
                 seq: this._resultSeq++,
                 f_0_Hz: f_0_Hz,
-                q_Hz: 0,
+                q_Hz: undefined,
                 samplingRate: sampleRate,
                 selectedMinima: best_min,
+                //correlationData: sdf_result,
+                //leastSquaresData : refined_sdf_result,
+                leastSquaresParabola: quadraticFit,
                 processingTimeMs: performance.now() - t0,
                 timeStamp: Date.now(),
                 squelch: this._squelch,
@@ -115,18 +120,10 @@ export class PitchDetector {
         }
     }
 
-    private refineByLeastSquares(sdf: Point2Vector, /*out QuadraticD? quad*/): Point2 {
-        /*LeastSquaresD lsd = new LeastSquaresD(sdf.Points.ToArray());
-        quad = lsd.Parabola2();
-        if (quad!=null) {
-            var vertex = quad.Value.Vertex;
-            if (vertex != null) {
-                return vertex.Value;
-            }
-        }*/
-        return null;
+    private refineByLeastSquares(sdf: Point2Vector, /*out QuadraticD? quad*/) {
+        const lsd = new LeastSquares(sdf);
+        return lsd.parabola2();
     }
-
 
     /* assumes mins ordered */
     private bestMinimum(ordered_mins: Point2Vector, local_thresh: number): Point2 {
@@ -165,7 +162,7 @@ export class PitchDetector {
         if(this.update_squelch(cms[cms.length-1]/len)) {
             let delay = first;
             for(let i=0;i<n;i++) {
-                result.pushxy(delay,this.normalised_square_difference_single(delay,data,data,cms,len));
+                result.pushxy(delay, this.normalised_square_difference_single(delay,data,data,cms,len));
                 delay += step;
             }
         }

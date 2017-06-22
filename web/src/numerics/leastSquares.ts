@@ -1,5 +1,6 @@
 
 import { Quadratic } from "./quadratic";
+import { Matrix } from "./matrix";
 import { Point2, Point2Vector } from "./point2";
 import * as arrayExt from "./arrayExtensions";
 
@@ -11,7 +12,7 @@ export class LeastSquares {
     }
 
     parabola2() : Quadratic {
-        //const nvals = this._points.length;
+        const nvals = this._points.length;
         const xvals = this._points.xvals();
         const yvals = this._points.yvals();
 
@@ -21,9 +22,16 @@ export class LeastSquares {
         const sx3 = arrayExt.cubeSum(xvals);
         const sx4 = arrayExt.to4thSum(xvals);
 
+        const augm = new Matrix([
+            [nvals,sx,sx2,arrayExt.sum(yvals)],
+            [sx,sx2,sx3,arrayExt.productSum(yvals,xvals)],
+            [sx2,sx3,sx4,arrayExt.productSum(yvals,xvals2)]
+        ]);
 
-        return undefined;
+        if(augm.doGaussJordan())
+        {
+            return Quadratic.fromVector(augm.col(3));
+        }
     }
-
 }
 
