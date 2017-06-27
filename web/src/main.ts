@@ -1,4 +1,5 @@
 
+import * as m from "mithril";
 import { mount } from "./components/app";
 import { getStore } from "./store";
 import { updateAudioStatus } from "./actions/app";
@@ -8,13 +9,16 @@ import { PitchDetectorParams } from "./audio/pitchDetector";
 
 const store = getStore();
 
-if(process.env.NODE_ENV==="development") {
-    store.subscribe(()=> {
-        console.log(JSON.stringify(store.getState()));
-    });
-}
-
 mount(document.getElementById("app"), store);
+
+store.subscribe(()=> {
+    if(process.env.NODE_ENV==="development") {
+        console.log(JSON.stringify(store.getState()));
+    };
+    //m.redraw();
+    mount(document.getElementById("app"), store);
+});
+
 
 /* audio test */
 navigator.mediaDevices

@@ -1,6 +1,4 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { Provider, connect } from "react-redux";
+import * as m from "mithril";
 import { Store } from "redux";
 import { State } from "../state";
 
@@ -22,7 +20,7 @@ function mapStateToProps(state: State) : AppProps {
 
 function pointToString(point: Point2) {
     if(point) {
-        return `(${point.x},${point.y})`
+        return `(${point.x},${point.y})`;
     }
     return "null";
 }
@@ -35,28 +33,30 @@ function f0HzToNote(hz: number) {
     return "---";
 }
 
-const App = connect(mapStateToProps)((props: AppProps) => (
-    <div>
-        <h1>Hello!</h1>
-        Active: <span>{props.audioActive ? "Yes":"No"}</span><br/>
-        {props.pitchData &&
+const App = (store: Store<State>) => ({
+    view: () => {
+        const props = mapStateToProps(store.getState());
+        return (
             <div>
-                f_0_Hz: <span>{props.pitchData.f_0_Hz}</span> Hz<br/>
-                note: <span>{f0HzToNote(props.pitchData.f_0_Hz)}</span><br/>
-                bestMinima: <span>{pointToString(props.pitchData.selectedMinima)}</span><br/>
-                Sampling Rate: <span>{props.pitchData.samplingRate}</span> Hz<br/>
-                Seq#: <span>{props.pitchData.seq}</span><br/>
-                Signal Rx: <span>{props.pitchData.squelch ? "Yes":"No"}</span><br/>
-                Signal Rms2: <span>{props.pitchData.rmsSquared}</span><br/>
-                Time(ms): <span>{props.pitchData.processingTimeMs}</span><br/>
+            <h1>Hello!</h1>
+                Active: <span>{props.audioActive ? "Yes":"No"}</span><br/>
+                {props.pitchData &&
+                    <div>
+                        f_0_Hz: <span>{props.pitchData.f_0_Hz}</span> Hz<br/>
+                        note: <span>{f0HzToNote(props.pitchData.f_0_Hz)}</span><br/>
+                        bestMinima: <span>{pointToString(props.pitchData.selectedMinima)}</span><br/>
+                        Sampling Rate: <span>{props.pitchData.samplingRate}</span> Hz<br/>
+                        Seq#: <span>{props.pitchData.seq}</span><br/>
+                        Signal Rx: <span>{props.pitchData.squelch ? "Yes":"No"}</span><br/>
+                        Signal Rms2: <span>{props.pitchData.rmsSquared}</span><br/>
+                        Time(ms): <span>{props.pitchData.processingTimeMs}</span><br/>
+                    </div>
+                }
             </div>
-        }
-     </div>
-));
+        )
+    }
+});
 
 export function mount(element: HTMLElement, store: Store<State>) {
-    ReactDOM.render((
-    <Provider store={store}>
-        <App />
-    </Provider>), element);
+    m.render(element,m(App(store)));
 }

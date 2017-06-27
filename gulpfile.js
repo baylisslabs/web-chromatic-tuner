@@ -6,6 +6,7 @@ let source = require("vinyl-source-stream");
 let buffer = require("vinyl-buffer");
 let browserify = require("browserify");
 let tsify = require("tsify");
+var jsxify = require('jsx-transform').browserifyTransform;
 let uglify = require("gulp-uglify");
 let envify = require("envify/custom");
 let sass = require("gulp-sass");
@@ -48,10 +49,11 @@ gulp.task('compile-web', () => {
       })
       .add(config.compile.src)
       .plugin(tsify, {
-           jsx: "react",
+           jsx: "preserve",
            target: "es5",
            lib: [ "es5", "es2015.promise", "es2015.core", "es2015.iterable", "dom" ]
       })
+      .transform(jsxify, { factory: "m", extensions: [".tsx"]})
       .transform(envify())
       .bundle()
       .on('error', error => console.error(error.toString()))
@@ -138,7 +140,8 @@ gulp.task('build-web', (callback) => {
     runSequence("clean-web",
       "bump-dist-version",
       "sass",
-      [ "static", "images", "fonts", "compile-web"],
+      "compile-web",
+      [ "static", "images", "fonts" ],
       "html",
       callback
     );
