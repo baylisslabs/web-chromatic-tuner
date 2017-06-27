@@ -29,8 +29,8 @@ export class App {
   }
 
   start() {
-    const privateKey  = fs.readFileSync(path.resolve(__dirname,"../../server.key"), "utf8");
-    const certificate = fs.readFileSync(path.resolve(__dirname,"../../server.pem"), "utf8");
+    const privateKey  = fs.readFileSync(path.resolve(__dirname,"../../sslcerts/server.key"), "utf8");
+    const certificate = fs.readFileSync(path.resolve(__dirname,"../../sslcerts/server.pem"), "utf8");
     const credentials = { key: privateKey, cert: certificate };
 
     const httpsServer = https.createServer(credentials, this.app);

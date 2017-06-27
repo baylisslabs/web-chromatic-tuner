@@ -15,8 +15,13 @@ let uglifycss = require("gulp-uglifycss");
 let sourcemaps = require("gulp-sourcemaps");
 let rename = require("gulp-rename");
 let env = require("gulp-environment");
+var revCollector = require('gulp-rev-collector');
+var minifyHTML   = require('gulp-htmlmin');
+let rev = require("gulp-rev");
 let del = require("del");
 let runSequence = require("run-sequence");
+let inlineSource = require ("gulp-inline-source");
+var exec = require('child_process').exec;
 
 const config = {
     debug: !env.is.production(),
@@ -54,7 +59,10 @@ gulp.task('compile-web', () => {
       .pipe(buffer())
       .pipe(rename(config.compile.outputFile))
       .pipe(env.if.production(uglify()))
-      .pipe(gulp.dest(config.compile.outputDir));
+      .pipe(rev())
+      .pipe(gulp.dest(config.compile.outputDir))
+      .pipe(rev.manifest())
+      .pipe(gulp.dest("rev/js"));
 })
 
 gulp.task("sass", () => {
@@ -64,10 +72,10 @@ gulp.task("sass", () => {
         includePaths: ["node_modules/normalize-scss/sass"]
       }))
       .pipe(env.if.development(sourcemaps.write()))
-      .pipe(autoprefixer({
+      /*.pipe(autoprefixer({
           browsers: ['last 2 versions'],
           cascade: false
-      }))
+      }))*/
       .pipe(env.if.production(uglifycss({
           "maxLineLen": 80,
           "uglyComments": true
@@ -87,7 +95,21 @@ gulp.task('fonts', () => {
 })
 
 gulp.task('static', () => {
-    return gulp.src('web/**/*.+(html)')
+    return gulp.src('web/**/*.+(json|xml)')
+    .pipe(gulp.dest('dist/www'))
+})
+
+gulp.task('html', () => {
+    return gulp.src(['rev/**/*.json','web/**/*.+(html)'])
+    .pipe(revCollector())
+    .pipe(inlineSource({
+        rootpath: "dist/www",
+        compress: false
+    }))
+    .pipe(env.if.production(minifyHTML({
+        removeComments: true,
+        collapseWhitespace: true
+    })))
     .pipe(gulp.dest('dist/www'))
 })
 
@@ -114,9 +136,20 @@ gulp.task('clean', () => {
 
 gulp.task('build-web', (callback) => {
     runSequence("clean-web",
-      ["sass", "static", "images", "fonts", "compile-web"],
+      "bump-dist-version",
+      "sass",
+      [ "static", "images", "fonts", "compile-web"],
+      "html",
       callback
     );
+});
+
+gulp.task('bump-dist-version', (cb) => {
+    exec('cd web && npm version patch', function (err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+        cb(err);
+  });
 });
 
 gulp.task('build-server', (callback) => {
