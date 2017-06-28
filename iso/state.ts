@@ -2,9 +2,9 @@
 import { PitchDetectorResult } from "./audio/pitchDetector";
 
 export class State {
-    readonly app: AppState;
-    readonly domain: DomainState;
-    readonly ui: UiState;
+    readonly app = new AppState();
+    readonly domain = new  DomainState();
+    readonly ui = new UiState();
 
     static clone(source:State, modifers: Partial<State>) {
         return {...source, ...modifers};
@@ -13,7 +13,7 @@ export class State {
 
 export class AppState {
 
-    readonly audioActive: boolean;
+    readonly audioActive: boolean = false;
     readonly pitchData: PitchDetectorResult;
 
     static clone(source:AppState, modifers: Partial<AppState>) {

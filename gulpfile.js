@@ -6,7 +6,6 @@ let source = require("vinyl-source-stream");
 let buffer = require("vinyl-buffer");
 let browserify = require("browserify");
 let tsify = require("tsify");
-var jsxify = require('jsx-transform').browserifyTransform;
 let uglify = require("gulp-uglify");
 let envify = require("envify/custom");
 let sass = require("gulp-sass");
@@ -15,14 +14,17 @@ let imagemin = require("gulp-imagemin");
 let uglifycss = require("gulp-uglifycss");
 let sourcemaps = require("gulp-sourcemaps");
 let rename = require("gulp-rename");
+let transform = require("gulp-transform");
 let env = require("gulp-environment");
-var revCollector = require('gulp-rev-collector');
-var minifyHTML   = require('gulp-htmlmin');
+let revCollector = require("gulp-rev-collector");
+let minifyHTML   = require("gulp-htmlmin");
+let replace = require("gulp-replace");
+let replaceAsync = require("gulp-replace-async");
 let rev = require("gulp-rev");
 let del = require("del");
 let runSequence = require("run-sequence");
 let inlineSource = require ("gulp-inline-source");
-var exec = require('child_process').exec;
+let exec = require('child_process').exec;
 
 const config = {
     debug: !env.is.production(),
@@ -30,7 +32,7 @@ const config = {
         src: "web/src/main.ts",
         outputDir: "./dist/www/js",
         outputFile: "bundle.js",
-    },
+    }
 };
 
 const tsProject = ts.createProject("tsconfig.json");
@@ -40,20 +42,18 @@ console.log("config=",config);
 gulp.task('compile-server', () => {
     return tsProject.src()
         .pipe(tsProject())
-        .pipe(gulp.dest("dist/app"));
+        .pipe(gulp.dest("dist/iso"));
 })
 
 gulp.task('compile-web', () => {
-    let bundler = browserify({
+    return browserify({
         debug: config.debug,
       })
       .add(config.compile.src)
       .plugin(tsify, {
-           jsx: "preserve",
            target: "es5",
            lib: [ "es5", "es2015.promise", "es2015.core", "es2015.iterable", "dom" ]
       })
-      .transform(jsxify, { factory: "m", extensions: [".tsx"]})
       .transform(envify())
       .bundle()
       .on('error', error => console.error(error.toString()))
@@ -101,13 +101,18 @@ gulp.task('static', () => {
     .pipe(gulp.dest('dist/www'))
 })
 
-gulp.task('html', () => {
+gulp.task('templates', () => {
+    let { renderAppComponent } = require("./render-component");
+
     return gulp.src(['rev/**/*.json','web/**/*.+(html)'])
     .pipe(revCollector())
     .pipe(inlineSource({
         rootpath: "dist/www",
         compress: false
     }))
+    .pipe(replaceAsync(/{% appComponent %}/, (match,cb)=>
+        renderAppComponent().then(html=>cb(null,html))
+    ))
     .pipe(env.if.production(minifyHTML({
         removeComments: true,
         collapseWhitespace: true
@@ -125,11 +130,11 @@ gulp.task("watch", ["build"], () => {
 });
 
 gulp.task('clean-web', () => {
-    return del.sync('dist/www');
+    return del.sync(['dist/www','rev']);
 });
 
 gulp.task('clean-server', () => {
-    return del.sync('dist/app');
+    return del.sync('dist/iso');
 });
 
 gulp.task('clean', () => {
@@ -142,7 +147,7 @@ gulp.task('build-web', (callback) => {
       "sass",
       "compile-web",
       [ "static", "images", "fonts" ],
-      "html",
+      "templates",
       callback
     );
 });

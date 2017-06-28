@@ -1,7 +1,5 @@
 import * as m from "mithril";
-import { Store } from "redux";
 import { State } from "../state";
-
 import { MidiNote } from "../audio/midiNote";
 import { PitchDetectorResult } from "../audio/pitchDetector";
 import { Point2 } from "../numerics/point2";
@@ -33,9 +31,9 @@ function f0HzToNote(hz: number) {
     return "---";
 }
 
-const App = (store: Store<State>) => ({
+export const App = (getState: () => State) => ({
     view: () => {
-        const props = mapStateToProps(store.getState());
+        const props = mapStateToProps(getState());
         return (
             <div>
             <h1>Hello!</h1>
@@ -57,6 +55,3 @@ const App = (store: Store<State>) => ({
     }
 });
 
-export function mount(element: HTMLElement, store: Store<State>) {
-    m.render(element,m(App(store)));
-}

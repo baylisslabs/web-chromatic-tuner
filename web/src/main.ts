@@ -1,13 +1,18 @@
-
 import * as m from "mithril";
-import { mount } from "./components/app";
+import { Store } from "redux";
 import { getStore } from "./store";
-import { updateAudioStatus } from "./actions/app";
-import { pitchDetectEvent } from "./actions/app";
-import { PitchDetector } from "./audio/pitchDetector";
-import { PitchDetectorParams } from "./audio/pitchDetector";
+import { State } from "../../iso/state";
+import { App } from "../../iso/components/app";
+import { updateAudioStatus } from "../../iso/actions/app";
+import { pitchDetectEvent } from "../../iso/actions/app";
+import { PitchDetector } from "../../iso/audio/pitchDetector";
+import { PitchDetectorParams } from "../../iso/audio/pitchDetector";
 
 const store = getStore();
+
+function mount(element: HTMLElement, store: Store<State>) {
+    m.render(element,m(App(()=>store.getState())));
+}
 
 mount(document.getElementById("app"), store);
 
@@ -15,10 +20,8 @@ store.subscribe(()=> {
     if(process.env.NODE_ENV==="development") {
         console.log(JSON.stringify(store.getState()));
     };
-    //m.redraw();
     mount(document.getElementById("app"), store);
 });
-
 
 /* audio test */
 navigator.mediaDevices

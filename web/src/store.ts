@@ -1,6 +1,6 @@
 import { Store, createStore, applyMiddleware } from "redux";
-import { rootReducer } from "./reducers/rootReducer";
-import { State } from "./state";
+import { rootReducer } from "../../iso/reducers/rootReducer";
+import { State } from "../../iso/state";
 //import thunk from "redux-thunk";
 
 let _store: Store<State>;

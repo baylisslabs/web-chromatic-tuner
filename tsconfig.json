@@ -2,11 +2,14 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es6",
+        "jsx": "react",
+        "jsxFactory": "m",
         "noImplicitAny": false,
         "sourceMap": false
     },
     "include": [
-        "app/**/*.ts"
+        "iso/**/*.ts",
+        "iso/**/*.tsx"
     ],
     "exclude": [
         "node_modules",
