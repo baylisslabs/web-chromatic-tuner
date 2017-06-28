@@ -5,10 +5,12 @@ import { State } from "../../iso/state";
 import { App } from "../../iso/components/app";
 import { updateAudioStatus } from "../../iso/actions/app";
 import { pitchDetectEvent } from "../../iso/actions/app";
-import { PitchDetector } from "../../iso/audio/pitchDetector";
-import { PitchDetectorParams } from "../../iso/audio/pitchDetector";
+//import { PitchDetector } from "../../iso/audio/pitchDetector";
+//import { PitchDetectorParams } from "../../iso/audio/pitchDetector";
 
 const store = getStore();
+/* todo: replace this string or pipe */
+const worker = new Worker("js/worker-3a7298e95e.bundle.js");
 
 function mount(element: HTMLElement, store: Store<State>) {
     m.render(element,m(App(()=>store.getState())));
@@ -23,20 +25,18 @@ store.subscribe(()=> {
     mount(document.getElementById("app"), store);
 });
 
+worker.onmessage = (e) => {
+    requestAnimationFrame(()=>{
+        store.dispatch(pitchDetectEvent(e.data));
+    });
+};
+
 /* audio test */
 navigator.mediaDevices
     .getUserMedia({ audio: true, video: false })
     .then(stream=>{
         store.dispatch(updateAudioStatus(true));
         const context = new AudioContext();
-
-        const pdParams = new PitchDetectorParams();
-        const pitchDetector = new PitchDetector(pdParams,(result)=>{
-            //console.log(seq,result);
-            requestAnimationFrame(()=>{
-                store.dispatch(pitchDetectEvent(result));
-            });
-        })
 
         const input = context.createMediaStreamSource(stream);
 
@@ -50,9 +50,12 @@ navigator.mediaDevices
         input.connect(analyser);
 
         const timer = setInterval(()=>{
+
             analyser.getFloatTimeDomainData(dataArray);
-            pitchDetector.processLinearPcm(
-                dataArray,
-                context.sampleRate);
+            //console.log("tx message");
+            worker.postMessage({
+                dataArray: dataArray,
+                sampleRate: context.sampleRate
+            });
         }, minIntervalMs);
     });

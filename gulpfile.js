@@ -2,6 +2,7 @@
 
 let gulp = require("gulp");
 let fs = require("fs");
+let es = require('event-stream');
 let ts = require("gulp-typescript");
 let source = require("vinyl-source-stream");
 let buffer = require("vinyl-buffer");
@@ -9,6 +10,7 @@ let browserify = require("browserify");
 let tsify = require("tsify");
 let uglify = require("gulp-uglify");
 let envify = require("envify/custom");
+let workerify = require("workerify");
 let sass = require("gulp-sass");
 let autoprefixer = require("gulp-autoprefixer");
 let imagemin = require("gulp-imagemin");
@@ -28,18 +30,7 @@ let runSequence = require("run-sequence");
 let inlineSource = require ("gulp-inline-source");
 let exec = require('child_process').exec;
 
-const config = {
-    debug: !env.is.production(),
-    compile: {
-        src: "web/src/main.ts",
-        outputDir: "./dist/www/js",
-        outputFile: "bundle.js",
-    }
-};
-
 const tsProject = ts.createProject("tsconfig.json");
-
-console.log("config=",config);
 
 gulp.task('compile-server', () => {
     return tsProject.src()
@@ -48,25 +39,32 @@ gulp.task('compile-server', () => {
 })
 
 gulp.task('compile-web', () => {
-    return browserify({
-        debug: config.debug,
-      })
-      .add(config.compile.src)
-      .plugin(tsify, {
-           target: "es5",
-           lib: [ "es5", "es2015.promise", "es2015.core", "es2015.iterable", "dom" ]
-      })
-      .transform(envify())
-      .bundle()
-      .on('error', error => console.error(error.toString()))
-      .pipe(source(config.compile.src))
-      .pipe(buffer())
-      .pipe(rename(config.compile.outputFile))
-      .pipe(env.if.production(uglify()))
-      .pipe(rev())
-      .pipe(gulp.dest(config.compile.outputDir))
-      .pipe(rev.manifest())
-      .pipe(gulp.dest("rev/js"));
+    let tasks = ["web/src/main.ts","web/src/worker.ts"].map(src=>
+        browserify(src,{
+            debug: env.is.production(),
+        })
+        .add(src)
+        .plugin(tsify, {
+            target: "es5",
+            lib: [ "es5", "es2015.promise", "es2015.core", "es2015.iterable", "dom" ]
+        })
+        .transform(envify())
+        //.transform(workerify())
+        .bundle()
+        .on('error', error => console.error(error.toString()))
+        .pipe(source(src))
+        .pipe(buffer())
+        .pipe(rename({
+            dirname: "",
+            extname: ".bundle.js"
+        }))
+        .pipe(env.if.production(uglify()))
+        .pipe(rev())
+        .pipe(gulp.dest("dist/www/js")));
+    // create a merged stream
+    return es.merge.apply(null, tasks)
+        .pipe(rev.manifest())
+        .pipe(gulp.dest("rev/js"));
 })
 
 gulp.task("sass", () => {
@@ -128,7 +126,8 @@ gulp.task("offline-manifest",() => {
     let manifest = JSON.parse(fs.readFileSync("rev/js/rev-manifest.json"));
     let { version } = JSON.parse(fs.readFileSync("web/package.json"));
     return gulp.src(['web/**/*.appcache'])
-    .pipe(replace(/bundle\.js/,manifest["bundle.js"]))
+    .pipe(replace(/main.bundle\.js/,manifest["main.bundle.js"]))
+    .pipe(replace(/worker.bundle\.js/,manifest["worker.bundle.js"]))
     .pipe(replace(/{% version %}/,version))
     .pipe(gulp.dest('dist/www'))
 });
