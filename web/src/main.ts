@@ -5,12 +5,11 @@ import { State } from "../../iso/state";
 import { App } from "../../iso/components/app";
 import { updateAudioStatus } from "../../iso/actions/app";
 import { pitchDetectEvent } from "../../iso/actions/app";
-//import { PitchDetector } from "../../iso/audio/pitchDetector";
-//import { PitchDetectorParams } from "../../iso/audio/pitchDetector";
+let revManifest = require("../../rev/js/rev-manifest.json");
+
+const worker = new Worker(`js/${revManifest["worker.bundle.js"]}`);
 
 const store = getStore();
-/* todo: replace this string or pipe */
-const worker = new Worker("js/worker-3a7298e95e.bundle.js");
 
 function mount(element: HTMLElement, store: Store<State>) {
     m.render(element,m(App(()=>store.getState())));
