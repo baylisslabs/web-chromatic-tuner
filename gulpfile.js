@@ -1,6 +1,7 @@
 "use strict";
 
 let gulp = require("gulp");
+let fs = require("fs");
 let ts = require("gulp-typescript");
 let source = require("vinyl-source-stream");
 let buffer = require("vinyl-buffer");
@@ -17,6 +18,7 @@ let rename = require("gulp-rename");
 let transform = require("gulp-transform");
 let env = require("gulp-environment");
 let revCollector = require("gulp-rev-collector");
+let revReplace = require("gulp-rev-replace");
 let minifyHTML   = require("gulp-htmlmin");
 let replace = require("gulp-replace");
 let replaceAsync = require("gulp-replace-async");
@@ -103,6 +105,7 @@ gulp.task('static', () => {
 
 gulp.task('templates', () => {
     let { renderAppComponent } = require("./render-component");
+    let { version } = JSON.parse(fs.readFileSync("web/package.json"));
 
     return gulp.src(['rev/**/*.json','web/**/*.+(html)'])
     .pipe(revCollector())
@@ -117,8 +120,18 @@ gulp.task('templates', () => {
         removeComments: true,
         collapseWhitespace: true
     })))
+    .pipe(replace(/{% version %}/,`<!-- ${version} -->`))
     .pipe(gulp.dest('dist/www'))
 })
+
+gulp.task("offline-manifest",() => {
+    let manifest = JSON.parse(fs.readFileSync("rev/js/rev-manifest.json"));
+    let { version } = JSON.parse(fs.readFileSync("web/package.json"));
+    return gulp.src(['web/**/*.appcache'])
+    .pipe(replace(/bundle\.js/,manifest["bundle.js"]))
+    .pipe(replace(/{% version %}/,version))
+    .pipe(gulp.dest('dist/www'))
+});
 
 gulp.task("watch", ["build"], () => {
     gulp.watch("web/src/**/*.+(ts|tsx)", ["compile-web"]);
@@ -147,7 +160,7 @@ gulp.task('build-web', (callback) => {
       "sass",
       "compile-web",
       [ "static", "images", "fonts" ],
-      "templates",
+      ["templates", "offline-manifest"],
       callback
     );
 });
