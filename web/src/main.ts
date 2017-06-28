@@ -29,21 +29,30 @@ navigator.mediaDevices
     .then(stream=>{
         store.dispatch(updateAudioStatus(true));
         const context = new AudioContext();
-        const input = context.createMediaStreamSource(stream);
-        const processor = context.createScriptProcessor(4096,1,1);
+
         const pdParams = new PitchDetectorParams();
         const pitchDetector = new PitchDetector(pdParams,(result)=>{
             //console.log(seq,result);
-            store.dispatch(pitchDetectEvent(result));
+            requestAnimationFrame(()=>{
+                store.dispatch(pitchDetectEvent(result));
+            });
         })
 
-        input.connect(processor);
-        processor.connect(context.destination);
-        processor.onaudioprocess = audioEvent => {
-            if(audioEvent.inputBuffer.numberOfChannels>0) {
-                pitchDetector.processLinearPcm(
-                    audioEvent.inputBuffer.getChannelData(0),
-                    audioEvent.inputBuffer.sampleRate);
-            }
-        };
+        const input = context.createMediaStreamSource(stream);
+
+        const analyser = context.createAnalyser();
+        analyser.fftSize = 4096;
+        analyser.smoothingTimeConstant = 0;
+        const dataArray = new Float32Array(analyser.fftSize);
+        const minIntervalMs = 200;
+        console.log(analyser.fftSize);
+
+        input.connect(analyser);
+
+        const timer = setInterval(()=>{
+            analyser.getFloatTimeDomainData(dataArray);
+            pitchDetector.processLinearPcm(
+                dataArray,
+                context.sampleRate);
+        }, minIntervalMs);
     });

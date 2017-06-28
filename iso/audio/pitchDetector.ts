@@ -35,14 +35,12 @@ export class PitchDetectorParams
     readonly _local_thresh = 0.05;
     readonly _squelch_open = 10;
     readonly _squelch_close = 2;
-    readonly _skipFrames = 2; // only process every n frames (CPU load)
 }
 
 export class PitchDetector {
     private readonly _params: PitchDetectorParams;
     private readonly _resultHandler: (result: PitchDetectorResult) => void;
 
-    private _frameCounter: number;
     private _resultSeq: number;
     private _squelch: boolean;
     private _min_avg_pwr2: number;
@@ -51,7 +49,6 @@ export class PitchDetector {
     constructor(params: PitchDetectorParams, resultHandler: (result: PitchDetectorResult) => void) {
         this._params = params;
         this._resultHandler = resultHandler;
-        this._frameCounter = 0;
         this._resultSeq = 0;
         this._squelch = false;
         this._min_avg_pwr2 = Number.MAX_VALUE;
@@ -59,10 +56,6 @@ export class PitchDetector {
     }
 
     processLinearPcm(pcmData: Float32Array, sampleRate: number) {
-        if((this._frameCounter++) % this._params._skipFrames) {
-            return;
-        }
-
         if(pcmData.length >= this._params._last_lag && pcmData.length >= this._params._limit_data_len) {
             pcmData = pcmData.slice(0,this._params._limit_data_len);
 
