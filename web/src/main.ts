@@ -3,10 +3,8 @@ import { Store } from "redux";
 import { getStore } from "./store";
 import { State } from "../../iso/state";
 import { App } from "../../iso/components/app";
-import { updateAudioStatus } from "../../iso/actions/app";
-import { pitchDetectEvent } from "../../iso/actions/app";
-let revManifest = require("../../rev/js/rev-manifest.json");
-
+import { audioStatusAction, pitchDetectAction } from "../../iso/actions/app";
+const revManifest = require("../../rev/js/rev-manifest.json");
 const worker = new Worker(`js/${revManifest["worker.bundle.js"]}`);
 
 const store = getStore();
@@ -26,7 +24,7 @@ store.subscribe(()=> {
 
 worker.onmessage = (e) => {
     requestAnimationFrame(()=>{
-        store.dispatch(pitchDetectEvent(e.data));
+        store.dispatch(pitchDetectAction({ result: e.data }));
     });
 };
 
@@ -34,7 +32,7 @@ worker.onmessage = (e) => {
 navigator.mediaDevices
     .getUserMedia({ audio: true, video: false })
     .then(stream=>{
-        store.dispatch(updateAudioStatus(true));
+        store.dispatch(audioStatusAction({ active: true}));
         const context = new AudioContext();
 
         const input = context.createMediaStreamSource(stream);

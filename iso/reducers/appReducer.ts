@@ -1,27 +1,34 @@
 
-import { Action, ActionType } from "../actions/types";
-import { AudioStatusAction } from "../actions/types";
-import { PitchDetectAction } from "../actions/types";
-import { AppState } from "../state";
+import {
+    ActionBase,
+    ReducerRegistry
+} from "../actions/defs";
 
-export function appReducer(state = new AppState(), action: Action) {
-    switch(action.type) {
-        //case ActionType.UPDATE_TIME: return updateTime(state,action);
-        case ActionType.AUDIO_STATUS: return audioStatus(state,action);
-        case ActionType.PITCH_DETECT: return pitchDetect(state,action);
-        default: return state;
+import {
+    Definitions
+} from "../actions/app";
+
+
+import { State } from "../state";
+
+const arr = new ReducerRegistry<State,Definitions>();
+
+export function appReducer(state = new State(), action: ActionBase<Definitions>) {
+    if(process.env.NODE_ENV==="development") {
+        console.log(action);
     }
+    return arr.reduce(state,action);
 }
 
-function audioStatus(state: AppState, action: AudioStatusAction) {
-    return AppState.clone(state,{
-        audioActive: action.active
-     });
-}
+arr.for.audioStatusAction = (state, data) => {
+    return State.clone(state,{
+        audioActive: data.active
+    });
+};
 
-function pitchDetect(state: AppState, action: PitchDetectAction) {
-    return AppState.clone(state,{
-        pitchData: action.data
-     });
+arr.for.pitchDetectAction = (state, data) => {
+    return State.clone(state,{
+        pitchData: data.result
+    });
 }
 

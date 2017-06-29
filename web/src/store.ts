@@ -1,10 +1,9 @@
-import { Store, createStore, applyMiddleware } from "redux";
-import { rootReducer } from "../../iso/reducers/rootReducer";
+import { Store, createStore } from "redux";
+import { appReducer } from "../../iso/reducers/appReducer";
 import { State } from "../../iso/state";
-//import thunk from "redux-thunk";
 
 let _store: Store<State>;
 
 export function getStore() {
-    return _store ? _store : (_store = createStore(rootReducer/*, applyMiddleware(thunk)*/));
+    return _store ? _store : (_store = createStore(appReducer));
 }

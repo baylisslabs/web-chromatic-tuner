@@ -1,21 +1,19 @@
 
-import { ActionType, ActionThunk } from "./types";
-import { AudioStatusAction } from "./types";
-import { PitchDetectAction } from "./types";
+
+import { _action } from "./defs";
 import { PitchDetectorResult } from "../audio/pitchDetector";
 
-export function updateAudioStatus(active: boolean): AudioStatusAction {
-    return {
-        type: ActionType.AUDIO_STATUS,
-        active,
+/* maybe interface or type ?? */
+export class Definitions {
+    audioStatusAction: {
+        active: boolean
+    };
+    pitchDetectAction: {
+        result: PitchDetectorResult
     };
 }
 
-export function pitchDetectEvent(data: PitchDetectorResult): PitchDetectAction {
-    return {
-        type: ActionType.PITCH_DETECT,
-        data
-    };
-}
-
+/* todo: derive this object */
+export const audioStatusAction = _action<Definitions>()("audioStatusAction");
+export const pitchDetectAction = _action<Definitions>()("pitchDetectAction");
 
