@@ -31,6 +31,7 @@
     "mithril-node-render": "^2.1.0",
     "redux": "^3.7.0",
     "run-sequence": "^1.2.2",
+    "screenfull": "^3.2.2",
     "tsify": "^3.0.1",
     "typescript": "^2.2.2",
     "typescript-string-enums": "^0.3.2",

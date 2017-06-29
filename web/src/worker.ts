@@ -12,4 +12,4 @@ onmessage = (e) => {
     pitchDetector.processLinearPcm(
         e.data.dataArray,
         e.data.sampleRate);
-    }
+};

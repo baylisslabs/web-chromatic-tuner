@@ -31,12 +31,17 @@ function f0HzToNote(hz: number) {
     return "---";
 }
 
+function toggleFullScreen() {
+
+}
+
 export const App = (getState: () => State) => ({
     view: () => {
         const props = mapStateToProps(getState());
         return (
             <div>
             <h1>Hello!</h1>
+                <button onclick={toggleFullScreen} >Toggle Fullscreen</button><br/>
                 Active: <span>{props.audioActive ? "Yes":"No"}</span><br/>
                 {props.pitchData &&
                     <div>
