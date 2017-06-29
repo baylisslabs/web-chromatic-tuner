@@ -1,10 +1,9 @@
 
 
-import { _action } from "./defs";
+import { ActionCreators } from "./defs";
 import { PitchDetectorResult } from "../audio/pitchDetector";
 
-/* maybe interface or type ?? */
-export type Definitions = {
+export interface Definitions {
     audioStatusAction: {
         active: boolean
     };
@@ -13,7 +12,7 @@ export type Definitions = {
     };
 }
 
-/* todo: derive this object */
-export const audioStatusAction = _action<Definitions>()("audioStatusAction");
-export const pitchDetectAction = _action<Definitions>()("pitchDetectAction");
-
+export const actions = ActionCreators<Definitions>(
+    "audioStatusAction",
+    "pitchDetectAction"
+);
