@@ -4,7 +4,7 @@ import { _action } from "./defs";
 import { PitchDetectorResult } from "../audio/pitchDetector";
 
 /* maybe interface or type ?? */
-export type Definitions {
+export type Definitions = {
     audioStatusAction: {
         active: boolean
     };
