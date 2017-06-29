@@ -44,7 +44,6 @@ navigator.mediaDevices
         analyser.smoothingTimeConstant = 0;
         const dataArray = new Float32Array(analyser.fftSize);
         const minIntervalMs = 200;
-        console.log(analyser.fftSize);
 
         input.connect(analyser);
 

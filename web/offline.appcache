@@ -1,5 +1,6 @@
 CACHE MANIFEST
 # {% version %}
+manifest.json
 js/main.bundle.js
 js/worker.bundle.js
 # end #
