@@ -1,6 +1,7 @@
 import * as m from "mithril";
 import { Store } from "redux";
-import { getStore } from "./store";
+import { getStore } from "../../iso/store";
+import { getDispatcher } from "../../iso/dispatcher";
 import { State } from "../../iso/state";
 import { App } from "../../iso/components/app";
 import { actions } from "../../iso/actions/app";
@@ -8,6 +9,7 @@ const revManifest = require("../../rev/js/rev-manifest.json");
 const worker = new Worker(`js/${revManifest["worker.bundle.js"]}`);
 
 const store = getStore();
+const dispatch = getDispatcher();
 
 function mount(element: HTMLElement, store: Store<State>) {
     m.render(element,m(App(()=>store.getState())));
@@ -24,7 +26,7 @@ store.subscribe(()=> {
 
 worker.onmessage = (e) => {
     requestAnimationFrame(()=>{
-        store.dispatch(actions.pitchDetectAction({ result: e.data }));
+        dispatch.pitchDetectAction({ result: e.data });
     });
 };
 
@@ -32,7 +34,7 @@ worker.onmessage = (e) => {
 navigator.mediaDevices
     .getUserMedia({ audio: true, video: false })
     .then(stream=>{
-        store.dispatch(actions.audioStatusAction({ active: true}));
+        dispatch.audioStatusAction({ active: true});
         const context = new AudioContext();
 
         const input = context.createMediaStreamSource(stream);

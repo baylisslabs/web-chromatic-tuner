@@ -1,6 +1,6 @@
 
 
-import { ActionCreators } from "./defs";
+import { ActionCreators, ActionDispatchers, IAction } from "./defs";
 import { PitchDetectorResult } from "../audio/pitchDetector";
 
 export interface Definitions {
@@ -10,9 +10,18 @@ export interface Definitions {
     pitchDetectAction: {
         result: PitchDetectorResult
     };
+    toggleFullScreen: {
+    }
 }
 
-export const actions = ActionCreators<Definitions>(
+const keys: (keyof Definitions)[] = [
     "audioStatusAction",
-    "pitchDetectAction"
-);
+    "pitchDetectAction",
+    "toggleFullScreen"
+];
+
+export const actions = ActionCreators<Definitions>(keys);
+
+export function createDispatchers(func: (action: IAction<Definitions>) => void) {
+    return ActionDispatchers(func,keys);
+}

@@ -1,6 +1,6 @@
 
 import { State } from "../state";
-import { ActionBase, ReducerRegistry } from "../actions/defs";
+import { IAction, ReducerRegistry } from "../actions/defs";
 import { Definitions } from "../actions/app";
 
 const arr = new ReducerRegistry<State,Definitions>();
@@ -17,7 +17,7 @@ arr.for.pitchDetectAction = (state, data) => {
     });
 }
 
-export function appReducer(state = new State(), action: ActionBase<Definitions>) {
+export function appReducer(state = new State(), action: IAction<Definitions>) {
     if(process.env.NODE_ENV==="development") {
         console.log(action);
     }

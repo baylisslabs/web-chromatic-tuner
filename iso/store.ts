@@ -1,6 +1,6 @@
 import { Store, createStore } from "redux";
-import { appReducer } from "../../iso/reducers/appReducer";
-import { State } from "../../iso/state";
+import { appReducer } from "./reducers/appReducer";
+import { State } from "./state";
 
 let _store: Store<State>;
 
