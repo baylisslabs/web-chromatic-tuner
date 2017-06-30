@@ -2,6 +2,7 @@
 import { PitchDetectorResult } from "./audio/pitchDetector";
 
 export class State {
+    readonly buildVersion = "";
     readonly audioActive: boolean = false;
     readonly pitchData: PitchDetectorResult;
     readonly toggleFullscreen: boolean = false;

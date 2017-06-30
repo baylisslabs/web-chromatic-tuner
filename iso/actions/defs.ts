@@ -55,9 +55,9 @@ export function ActionCreators<T>(keys: (keyof T)[]): ActionConstructorMap<T> {
 
 export function ActionDispatchers<T>(func: (action: IAction<T>) => void, keys: (keyof T)[]): ActionDispatcherMap<T> {
     let result = {} as _ActionDispatcherMap<T>;
-    let ctor = actionDispatcher<T>(func);
+    let disp = actionDispatcher<T>(func);
     for(const k of keys) {
-        result[k] = ctor(k);
+        result[k] = disp(k);
     }
     return result;
 }

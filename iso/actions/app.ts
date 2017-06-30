@@ -11,13 +11,20 @@ export interface Definitions {
         result: PitchDetectorResult
     };
     toggleFullScreen: {
+    },
+    startAudio: {
+    },
+    stopAudio: {
     }
+
 }
 
 const keys: (keyof Definitions)[] = [
     "audioStatusAction",
     "pitchDetectAction",
-    "toggleFullScreen"
+    "toggleFullScreen",
+    "startAudio",
+    "stopAudio"
 ];
 
 export const actions = ActionCreators<Definitions>(keys);

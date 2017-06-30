@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" manifest="offline.appcache">
-    <head> {% version %}
+    <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <!-- staging -->
@@ -8,11 +8,7 @@
         <title>Guitar Tuner</title>
         <meta name="description" content="Online guitar tuner for mobile, tablet or desktop that uses your microphone. Use immediately - No download or install required">
 
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1"
-        >
-
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" type="text/css" href="css/main.css" inline>
         <link rel="icon" href="data:;base64,iVBORw0KGgo=">
         <link rel="manifest" href="manifest.json">
@@ -21,4 +17,5 @@
         <div class="grid" id="app">{% appComponent %}</div>
         <script src="js/main.bundle.js" async></script>
     </body>
+    {% version %}
 </html>

@@ -21,11 +21,17 @@ function f0HzToNote(hz: number) {
     return "---";
 }
 
-const _App = ({ pitchData, audioActive }: State, { toggleFullScreen }: ActionDispatcherMap<Definitions>) => (
+const _App = (
+    { pitchData, audioActive, buildVersion }: State,
+    { toggleFullScreen, startAudio, stopAudio }: ActionDispatcherMap<Definitions>
+) => (
     <div>
         <h1>Hello!</h1>
-        <button onclick={()=>toggleFullScreen({})}>Toggle Fullscreen</button><br/>
+        <button onmousedown={()=>toggleFullScreen({})}>Toggle Fullscreen</button><br/>
+        <button onmousedown={()=>startAudio({})}>Start Audio</button><br/>
+        <button onmousedown={()=>stopAudio({})}>Stop Audio</button><br/>
         Active: <span>{audioActive ? "Yes":"No"}</span><br/>
+        Build: <span>{buildVersion}</span><br/>
         {pitchData &&
             <div>
                 f_0_Hz: <span>{pitchData.f_0_Hz}</span> Hz<br/>
