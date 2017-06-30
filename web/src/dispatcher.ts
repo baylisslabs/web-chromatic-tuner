@@ -1,6 +1,6 @@
 import { getStore } from "./store";
-import { createDispatchers, Definitions } from "./actions/app";
-import { IAction, ActionDispatcherMap } from "./actions/defs";
+import { createDispatchers, Definitions } from "../../iso/actions/app";
+import { IAction, ActionDispatcherMap } from "../../iso/actions/defs";
 
 let _dispatcher: ActionDispatcherMap<Definitions>;
 

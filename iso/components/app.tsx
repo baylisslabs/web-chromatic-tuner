@@ -1,11 +1,10 @@
 import * as m from "mithril";
 import { State } from "../state";
-import { getDispatcher } from "../dispatcher";
+import { ActionDispatcherMap } from "../actions/defs";
+import { Definitions } from "../actions/app";
 import { MidiNote } from "../audio/midiNote";
 import { PitchDetectorResult } from "../audio/pitchDetector";
 import { Point2 } from "../numerics/point2";
-
-const dispatch = getDispatcher();
 
 function pointToString(point: Point2) {
     if(point) {
@@ -22,10 +21,10 @@ function f0HzToNote(hz: number) {
     return "---";
 }
 
-const _App = ({ pitchData, audioActive}: State) => (
+const _App = ({ pitchData, audioActive }: State, { toggleFullScreen }: ActionDispatcherMap<Definitions>) => (
     <div>
         <h1>Hello!</h1>
-        <button onclick={()=>dispatch.toggleFullScreen({})}>Toggle Fullscreen</button><br/>
+        <button onclick={()=>toggleFullScreen({})}>Toggle Fullscreen</button><br/>
         Active: <span>{audioActive ? "Yes":"No"}</span><br/>
         {pitchData &&
             <div>
@@ -42,8 +41,8 @@ const _App = ({ pitchData, audioActive}: State) => (
     </div>
 );
 
-export const App = (getState: () => State) => ({
+export const App = (state: State, dispatch: ActionDispatcherMap<Definitions>)=> ({
     view: () => {
-        return _App(getState());
+        return _App(state, dispatch);
     }
 });

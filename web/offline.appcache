@@ -1,5 +1,6 @@
 CACHE MANIFEST
 # {% version %}
+# todo: replace with service worker
 manifest.json
 js/main.bundle.js
 js/worker.bundle.js

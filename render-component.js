@@ -9,7 +9,7 @@ let { State } = require("./dist/iso/state");
 let state = new State();
 
 const renderAppComponent = () => {
-    return render(App(()=>state));
+    return render(App(state,{}));
 }
 
 exports.renderAppComponent = renderAppComponent;

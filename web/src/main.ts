@@ -1,7 +1,7 @@
 import * as m from "mithril";
 import { Store } from "redux";
-import { getStore } from "../../iso/store";
-import { getDispatcher } from "../../iso/dispatcher";
+import { getStore } from "./store";
+import { getDispatcher } from "./dispatcher";
 import { State } from "../../iso/state";
 import { App } from "../../iso/components/app";
 import { actions } from "../../iso/actions/app";
@@ -11,23 +11,17 @@ const worker = new Worker(`js/${revManifest["worker.bundle.js"]}`);
 const store = getStore();
 const dispatch = getDispatcher();
 
-function mount(element: HTMLElement, store: Store<State>) {
-    m.render(element,m(App(()=>store.getState())));
-}
-
-mount(document.getElementById("app"), store);
+renderApp();
 
 store.subscribe(()=> {
     if(process.env.NODE_ENV==="development") {
         console.log(JSON.stringify(store.getState()));
     };
-    mount(document.getElementById("app"), store);
+    requestAnimationFrame(renderApp);
 });
 
 worker.onmessage = (e) => {
-    requestAnimationFrame(()=>{
-        dispatch.pitchDetectAction({ result: e.data });
-    });
+    dispatch.pitchDetectAction({ result: e.data });
 };
 
 /* audio test */
@@ -57,3 +51,7 @@ navigator.mediaDevices
             });
         }, minIntervalMs);
     });
+
+function renderApp() {
+    m.render(document.getElementById("app"),m(App(store.getState(),dispatch)));
+}
