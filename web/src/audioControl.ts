@@ -35,7 +35,7 @@ class _AudioControl {
                         this.input.connect(this.analyser);
                         this.timerId = setInterval(this.onTick.bind(this), this.minIntervalMs);
 
-                        dispatch.audioStatusAction({ active: true});
+                        dispatch.audioStatusAction({ active: true });
                     }
                 });
         }
@@ -53,6 +53,7 @@ class _AudioControl {
             this.input = null;
             this.audioContext = null;
             this.mediaStream = null;
+              dispatch.audioStatusAction({ active: false });
         }
     }
 

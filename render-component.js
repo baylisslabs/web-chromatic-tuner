@@ -9,7 +9,7 @@ const { version } = require("./web/package.json");
 const initialState = State.clone(new State(),{ buildVersion: version });
 
 const renderAppComponent = () => {
-    return render(App(initialState,{}));
+    return render(App,{state:initialState,dispatch:{}});
 }
 
 exports.renderAppComponent = renderAppComponent;

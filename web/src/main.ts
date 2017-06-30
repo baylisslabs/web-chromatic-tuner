@@ -20,5 +20,5 @@ store.subscribe(()=> {
 
 
 function renderApp() {
-    m.render(document.getElementById("app"),m(App(store.getState(),dispatch)));
+    m.render(document.getElementById("app"),m(App,{state: store.getState(), dispatch}));
 }

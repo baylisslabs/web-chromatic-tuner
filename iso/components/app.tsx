@@ -32,7 +32,7 @@ const _App = (
         <button onmousedown={()=>stopAudio({})}>Stop Audio</button><br/>
         Active: <span>{audioActive ? "Yes":"No"}</span><br/>
         Build: <span>{buildVersion}</span><br/>
-        {pitchData &&
+        {pitchData ?
             <div>
                 f_0_Hz: <span>{pitchData.f_0_Hz}</span> Hz<br/>
                 note: <span>{f0HzToNote(pitchData.f_0_Hz)}</span><br/>
@@ -42,13 +42,13 @@ const _App = (
                 Signal Rx: <span>{pitchData.squelch ? "Yes":"No"}</span><br/>
                 Signal Rms2: <span>{pitchData.rmsSquared}</span><br/>
                 Time(ms): <span>{pitchData.processingTimeMs}</span><br/>
-            </div>
+            </div> : ""
         }
     </div>
 );
 
-export const App = (state: State, dispatch: ActionDispatcherMap<Definitions>)=> ({
-    view: () => {
-        return _App(state, dispatch);
+export const App = {
+    view: ({attrs}) => {
+        return _App(attrs.state, attrs.dispatch);
     }
-});
+};
