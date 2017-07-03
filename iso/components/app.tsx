@@ -25,7 +25,7 @@ const _App = (
     { pitchData, audioActive, buildVersion }: State,
     { toggleFullScreen, startAudio, stopAudio }: ActionDispatcherMap<Definitions>
 ) => (
-    <div>
+    <div class="grid">
         <h1>Hello!</h1>
         <button onmousedown={()=>toggleFullScreen({})}>Toggle Fullscreen</button><br/>
         <button onmousedown={()=>startAudio({})}>Start Audio</button><br/>
