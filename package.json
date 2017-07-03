@@ -27,6 +27,7 @@
     "gulp-typescript": "^3.1.6",
     "gulp-uglify": "^2.1.2",
     "gulp-uglifycss": "^1.0.8",
+    "jss": "^8.0.0",
     "mithril": "^1.1.1",
     "mithril-node-render": "^2.1.0",
     "redux": "^3.7.0",
