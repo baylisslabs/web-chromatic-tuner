@@ -4,18 +4,21 @@ import preset from "jss-preset-default"
 import {main} from "./main";
 import {StyleSheetMap} from "./map";
 
-jss.setup(preset())
+jss.setup(preset());
 
 export function render() {
-    const sheet = jss.createStyleSheet(main)
-    const css = sheet.toString() // Returns CSS of all attached Style Sheets together.
-    console.log(css);
-    const s = StyleSheetMap(sheet,main);
-    console.log(s);
-
+    const sheet = jss.createStyleSheet(main);
+    const css = sheet.toString();
     return css;
 }
-render();
+
+export function map() {
+    const sheet = jss.createStyleSheet(main);
+    const css = sheet.toString();
+    const ssm = StyleSheetMap(sheet,main);
+    return ssm;
+}
+
 
 
 

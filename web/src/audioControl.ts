@@ -1,6 +1,5 @@
 
 import { getDispatcher } from "./dispatcher";
-
 const revManifest = require("../../rev/js/rev-manifest.json");
 const worker = new Worker(`js/${revManifest["worker.bundle.js"]}`);
 const dispatch = getDispatcher();

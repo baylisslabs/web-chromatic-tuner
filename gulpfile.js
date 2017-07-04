@@ -70,23 +70,17 @@ gulp.task('compile-web', (cb) => {
     return tasks[0]().then(()=>tasks[1]());
 })
 
-gulp.task("sass", () => {
-    return gulp.src("web/scss/main.scss")
-      .pipe(env.if.development(sourcemaps.init()))
-      .pipe(sass({
-        includePaths: ["node_modules/normalize-scss/sass"]
-      }))
-      .pipe(env.if.development(sourcemaps.write()))
-      /*.pipe(autoprefixer({
-          browsers: ['last 2 versions'],
-          cascade: false
-      }))*/
-      .pipe(env.if.production(uglifycss({
-          "maxLineLen": 80,
-          "uglyComments": true
-      })))
-      .pipe(gulp.dest('dist/www/css'))
-    });
+gulp.task("jss", () => {
+    let { render } = require("./dist/iso/styles/render-css");
+    let css = render();
+    let stream = source("main.css");
+    stream.end(css);
+    stream.pipe(env.if.production(uglifycss({
+        "maxLineLen": 80,
+        "uglyComments": true
+    })))
+    .pipe(gulp.dest("dist/www/css"));
+});
 
 gulp.task('images', () => {
     return gulp.src('web/images/**/*.+(png|jpg|gif|svg)')
@@ -159,7 +153,7 @@ gulp.task('clean', () => {
 gulp.task('build-web', (callback) => {
     runSequence("clean-web",
       "bump-dist-version",
-      "sass",
+      "jss",
       "compile-web",
       [ "static", "images", "fonts" ],
       ["templates", "offline-manifest"],
