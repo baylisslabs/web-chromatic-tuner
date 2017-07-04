@@ -6,19 +6,21 @@ import {StyleSheetMap} from "./map";
 
 jss.setup(preset());
 
+const sheet = jss.createStyleSheet(main);
+
 export function render() {
-    const sheet = jss.createStyleSheet(main);
     const css = sheet.toString();
     return css;
 }
 
-export function map() {
-    const sheet = jss.createStyleSheet(main);
-    const css = sheet.toString();
+export function mapTs() {
     const ssm = StyleSheetMap(sheet,main);
-    return ssm;
+    return `
+const classes = ${JSON.stringify(ssm)};
+export default classes;
+`;
 }
 
-
+//console.log(mapTs());
 
 

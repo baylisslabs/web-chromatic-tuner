@@ -70,12 +70,23 @@ gulp.task('compile-web', (cb) => {
     return tasks[0]().then(()=>tasks[1]());
 })
 
+gulp.task("jss-map", () => {
+    let { mapTs } = require("./dist/iso/styles/render-css");
+    let code = mapTs();
+    //console.log(code);
+    let stream = source("main.map.ts");
+    stream.end(code);
+    stream.pipe(gulp.dest("iso/styles"));
+});
+
 gulp.task("jss", () => {
     let { render } = require("./dist/iso/styles/render-css");
     let css = render();
     let stream = source("main.css");
     stream.end(css);
-    stream.pipe(env.if.production(uglifycss({
+    stream
+    .pipe(buffer())
+    .pipe(env.if.production(uglifycss({
         "maxLineLen": 80,
         "uglyComments": true
     })))
@@ -170,13 +181,17 @@ gulp.task('bump-dist-version', (cb) => {
 });
 
 gulp.task('build-server', (callback) => {
-    runSequence("clean-server", "compile-server",
+    runSequence(
+        "clean-server",
+        "compile-server",
         callback
     );
 });
 
 gulp.task('build', (callback) => {
-    runSequence("build-server","build-web",
+    runSequence(
+        "build-server",
+        "build-web",
         callback
     );
 });

@@ -5,6 +5,9 @@ import { Definitions } from "../actions/app";
 import { MidiNote } from "../audio/midiNote";
 import { PitchDetectorResult } from "../audio/pitchDetector";
 import { Point2 } from "../numerics/point2";
+import classes from "../styles/main.map";
+
+const { grid } = classes;
 
 function pointToString(point: Point2) {
     if(point) {
@@ -25,7 +28,7 @@ const _App = (
     { pitchData, audioActive, buildVersion }: State,
     { toggleFullScreen, startAudio, stopAudio }: ActionDispatcherMap<Definitions>
 ) => (
-    <div class="grid">
+    <div class={grid}>
         <h1>Hello!</h1>
         <button onmousedown={()=>toggleFullScreen({})}>Toggle Fullscreen</button><br/>
         <button onmousedown={()=>startAudio({})}>Start Audio</button><br/>

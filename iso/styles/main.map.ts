@@ -1,2 +1,3 @@
 
-export default {"grid":".grid-0-1"};
+const classes = {"grid":"grid-0-0"};
+export default classes;
