@@ -124,7 +124,8 @@ gulp.task('templates', () => {
     ))
     .pipe(env.if.production(minifyHTML({
         removeComments: true,
-        collapseWhitespace: true
+        collapseWhitespace: true,
+        minifyJS: true
     })))
     .pipe(replace(/{% version %}/,`<!-- ${version} -->`))
     .pipe(gulp.dest('dist/www'))

@@ -4,4 +4,8 @@ CACHE MANIFEST
 manifest.json
 js/main.bundle.js
 js/worker.bundle.js
+
+NETWORK:
+*
+
 # end #

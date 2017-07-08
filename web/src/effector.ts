@@ -2,12 +2,12 @@
 import { State } from "../../iso/state";
 import { IAction } from "../../iso/actions/defs";
 import { Definitions } from "../../iso/actions/app";
-import { getDispatcher } from "./dispatcher";
+//import { getDispatcher } from "./dispatcher";
 
 import * as screenfull from "screenfull";
 import { audioControl } from "./audioControl";
 
-const dispatch = getDispatcher();
+//const dispatch = getDispatcher();
 
 export function effectorMiddleware({ getState }) {
   return next => action => {
