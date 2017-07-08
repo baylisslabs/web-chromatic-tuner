@@ -105,7 +105,7 @@ gulp.task('fonts', () => {
 })
 
 gulp.task('static', () => {
-    return gulp.src('web/**/*.+(json|xml)')
+    return gulp.src('web/**/*.+(json|xml|js)')
     .pipe(gulp.dest('dist/www'))
 })
 
@@ -119,6 +119,7 @@ gulp.task('templates', () => {
         rootpath: "dist/www",
         compress: false
     }))
+    .pipe(buffer())
     .pipe(replaceAsync(/{% appComponent %}/, (match,cb)=>
         renderAppComponent().then(html=>cb(null,html))
     ))
