@@ -28,24 +28,35 @@ const _App = (
     { pitchData, audioActive, buildVersion }: State,
     { toggleFullScreen, startAudio, stopAudio }: ActionDispatcherMap<Definitions>
 ) => (
-    <div class={grid}>
-        <h1>Hello!</h1>
-        <button onmousedown={()=>toggleFullScreen({})}>Toggle Fullscreen</button><br/>
-        <button onmousedown={()=>startAudio({})}>Start Audio</button><br/>
-        <button onmousedown={()=>stopAudio({})}>Stop Audio</button><br/>
-        Active: <span>{audioActive ? "Yes":"No"}</span><br/>
-        Build: <span>{buildVersion}</span><br/>
-        {pitchData ?
-            <div>
-                f_0_Hz: <span>{pitchData.f_0_Hz}</span> Hz<br/>
-                note: <span>{f0HzToNote(pitchData.f_0_Hz)}</span><br/>
-                bestMinima: <span>{pointToString(pitchData.selectedMinima)}</span><br/>
-                Sampling Rate: <span>{pitchData.samplingRate}</span> Hz<br/>
-                Seq#: <span>{pitchData.seq}</span><br/>
-                Signal Rx: <span>{pitchData.squelch ? "Yes":"No"}</span><br/>
-                Signal Rms2: <span>{pitchData.rmsSquared}</span><br/>
-                Time(ms): <span>{pitchData.processingTimeMs}</span><br/>
-            </div> : ""
+    <div class="inner">
+        {audioActive ?
+            <h1 id='text04'>Now, play a note...</h1> :
+            <h1 id='text04'>Welcome. Enable audio to begin...</h1>
+        }
+        {audioActive && pitchData ?
+            <h1 id="text04">{f0HzToNote(pitchData.f_0_Hz)}</h1> :
+            <p id="text01">Proof of concept for an online guitar tuner for mobile, tablet or desktop that uses your microphone.
+                Its written in Typescript, and uses Mithril, Redux and Web Workers.
+            </p>
+        }
+        <ul id="buttons03" class="buttons">
+            <li><a role='button' href='#' class='button n01' onmousedown={()=>toggleFullScreen({})}>Toggle Fullscreen</a></li>
+            <li><a role='button' href='#' class='button n01' onmousedown={()=>startAudio({})}>Enable Audio</a></li>
+            <li><a role='button' href='#' class='button n01' onmousedown={()=>stopAudio({})}>Disable Audio</a></li>
+        </ul>
+        <ul>
+            <li id="text01">Active: <span>{audioActive ? "Yes":"No"}</span></li>
+            <li id="text01">Build: <span>{buildVersion}</span><br/></li>
+        </ul>
+        {audioActive && pitchData ?
+            <ul>
+                <li id="text01">f_0_Hz: <span>{pitchData.f_0_Hz}</span> Hz</li>
+                <li id="text01">Sampling Rate: <span>{pitchData.samplingRate}</span> Hz</li>
+                <li id="text01">Seq#: <span>{pitchData.seq}</span></li>
+                <li id="text01">Signal Rx: <span>{pitchData.squelch ? "Yes":"No"}</span></li>
+                <li id="text01">Signal Rms2: <span>{pitchData.rmsSquared}</span></li>
+                <li id="text01">Time(ms): <span>{pitchData.processingTimeMs}</span></li>
+            </ul> : ""
         }
     </div>
 );
