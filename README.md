@@ -1,5 +1,11 @@
 Proof of concept for an online guitar tuner for mobile, tablet or desktop that uses the microphone. Its written in Typescript, and uses Mithril, Redux and Web Workers.
 
+[Live Demo](https://baylisslabs.github.io/web-chromatic-tuner/)
+
+<p align="center">
+    <img src="docs/demo.png"/>
+</p>
+
 # Quick Start (development)
 
 Download and install [node](https://nodejs.org/en/download/)
