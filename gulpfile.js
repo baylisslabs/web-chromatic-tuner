@@ -70,6 +70,24 @@ gulp.task('compile-web', (cb) => {
     return tasks[0]().then(()=>tasks[1]());
 })
 
+gulp.task("sass", () => {
+    return gulp.src("web/scss/theme.scss")
+      .pipe(env.if.development(sourcemaps.init()))
+      .pipe(sass({
+        includePaths: ["node_modules/normalize-scss/sass"]
+      }))
+      .pipe(env.if.development(sourcemaps.write()))
+      .pipe(autoprefixer({
+          browsers: ['last 2 versions'],
+          cascade: false
+      }))
+      .pipe(env.if.production(uglifycss({
+          "maxLineLen": 80,
+          "uglyComments": true
+      })))
+      .pipe(gulp.dest('dist/www/css'))
+    });
+
 gulp.task("jss-map", () => {
     let { mapTs } = require("./dist/iso/styles/render-css");
     let code = mapTs();
@@ -166,6 +184,7 @@ gulp.task('clean', () => {
 gulp.task('build-web', (callback) => {
     runSequence("clean-web",
       "bump-dist-version",
+      "sass",
       "jss",
       "compile-web",
       [ "static", "images", "fonts" ],
