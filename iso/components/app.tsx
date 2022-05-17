@@ -40,9 +40,9 @@ const _App = (
             </p>
         }
         <ul id="buttons03" class="buttons">
-            <li><a role='button' href='#' class='button n01' onmousedown={()=>toggleFullScreen({})}>Toggle Fullscreen</a></li>
-            <li><a role='button' href='#' class='button n01' onmousedown={()=>startAudio({})}>Enable Audio</a></li>
-            <li><a role='button' href='#' class='button n01' onmousedown={()=>stopAudio({})}>Disable Audio</a></li>
+            <li><a role='button' href='javascript:' class='button n01' onmousedown={()=>toggleFullScreen({})}>Toggle Fullscreen</a></li>
+            <li><a role='button' href='javascript:' class='button n01' onmousedown={()=>startAudio({})}>Enable Audio</a></li>
+            <li><a role='button' href='javascript:' class='button n01' onmousedown={()=>stopAudio({})}>Disable Audio</a></li>
         </ul>
         <ul>
             <li id="text01">Active: <span>{audioActive ? "Yes":"No"}</span></li>
