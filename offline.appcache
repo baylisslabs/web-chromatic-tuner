@@ -1,9 +1,9 @@
 CACHE MANIFEST
-# 0.0.355
+# 0.0.356
 # todo: replace with service worker
 manifest.json
-js/main-962eb057a3.bundle.js
-js/worker-167106fc50.bundle.js
+js/main-b399dd55fc.bundle.js
+js/worker-2085ad32d9.bundle.js
 
 NETWORK:
 *
